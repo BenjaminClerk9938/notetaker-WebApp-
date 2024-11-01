@@ -1,10 +1,10 @@
-import { ScrollArea } from "./ui/scroll-area"
-import { Avatar, AvatarFallback } from "./ui/avatar"
-import { Button } from "./ui/button"
-import { Star, ListTodo, Trash2 } from "lucide-react"
-import { Message } from '../types'
-import { speakerColors } from '../data/meetings'
-import { cn } from '../lib/utils'
+import { ScrollArea } from "./ui/scroll-area";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Star, ListTodo, Trash2 } from "lucide-react";
+import { Message } from "../types";
+import { speakerColors } from "../data/meetings";
+import { cn } from "../lib/utils";
 
 interface MessageListProps {
   messages: Message[];
@@ -21,29 +21,31 @@ export function MessageList({
   onStar,
   onAddToActionItems,
   onDelete,
-  onHoverDelete
+  onHoverDelete,
 }: MessageListProps) {
   return (
     <ScrollArea className="h-[calc(100vh-350px)]">
       <div className="space-y-4">
         {messages.map((message) => (
-          <div 
-            key={message.id} 
+          <div
+            key={message.id}
             className={cn(
               "group flex items-start space-x-4 p-4 rounded-lg transition-colors",
               message.isStarred && "bg-yellow-500/10",
               hoveredDelete === message.id && "bg-red-500/10",
-              !message.isStarred && hoveredDelete !== message.id && "hover:bg-secondary"
+              !message.isStarred &&
+                hoveredDelete !== message.id &&
+                "hover:bg-secondary"
             )}
           >
-            <Avatar className={speakerColors[message.name]}>
-              <AvatarFallback>{message.name[0]}</AvatarFallback>
+            <Avatar className={speakerColors[message.speaker]}>
+              <AvatarFallback>{message.speaker}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-center space-x-2">
-                <span className="font-semibold">{message.name}</span>
+                <span className="font-semibold">{message.speaker}</span>
                 <span className="text-sm text-muted-foreground">
-                  {message.time}
+                  {message.timestamp}
                 </span>
               </div>
               <p className="mt-1">{message.content}</p>
