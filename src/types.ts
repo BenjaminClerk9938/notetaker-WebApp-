@@ -4,6 +4,7 @@ export interface Message {
   timestamp: string;
   content: string;
   isStarred?: boolean;
+  isComplete?: boolean;
   intent?: "follow-up" | "goal" | "decision" | null;
 }
 

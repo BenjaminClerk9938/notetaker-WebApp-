@@ -53,7 +53,16 @@ const Transcript = () => {
   const [transcripts, setTranscripts] = useState([]);
   const [error, setError] = useState("");
 
-  const [messages, setMessages] = useState<Message[] | null>();
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "",
+      speaker: "",
+      timestamp: "",
+      content: "",
+      isStarred: false,
+      isComplete: true,
+    },
+  ]);
 
   const [actionItems, setActionItems] = useState<ActionItem[]>([
     {
@@ -170,11 +179,23 @@ const Transcript = () => {
 
           if (message.type === "history") {
             setMessages(message.data);
-          } else if (
-            message.type === "stream" &&
-            message.data.message.isComplete
-          ) {
-            setMessages((prev) => [...(prev || []), message.data.message]);
+          } else if (message.type === "stream") {
+            setMessages((prevMessages) => {
+              if (
+                prevMessages.length > 0 &&
+                !prevMessages[prevMessages.length - 1].isComplete
+              ) {
+                // If the last message is incomplete, assume this chunk is part
+
+                return [
+                  ...prevMessages.slice(0, -1), // Keep previous messages
+                  message.data.message,
+                ];
+              } else {
+                // Otherwise, treat it as a new message
+                return [...prevMessages, message.data.message];
+              }
+            });
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -182,7 +203,7 @@ const Transcript = () => {
         }
       };
 
-      ws.onerror = (event:any) => {
+      ws.onerror = (event: any) => {
         console.error("WebSocket error:", event);
         setError("WebSocket error occurred");
       };
