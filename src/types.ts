@@ -16,6 +16,7 @@ export interface Meeting {
   end_time: string;
   participants: string[];
   transcript?: Message[];
+  is_active?: Boolean;
 }
 
 export interface Member {

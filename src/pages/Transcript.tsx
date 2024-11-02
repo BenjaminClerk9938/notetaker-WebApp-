@@ -98,18 +98,20 @@ const Transcript = () => {
   const [badgeColor, setbadgeColor] = useState<string>("#fff");
 
   useEffect(() => {
-    const fetchMeetingsData = async () => {
-      const username = localStorage.getItem("username");
-      setUser_name(username);
-      if (!username) {
-        window.location.href = "/login";
-        return;
-      }
-      const fetchedMeetings = await fetchMeetings(username);
-      setMeetings(fetchedMeetings); // Set loading to false after fetching
-    };
+    setInterval(() => {
+      const fetchMeetingsData = async () => {
+        const username = localStorage.getItem("username");
+        setUser_name(username);
+        if (!username) {
+          window.location.href = "/login";
+          return;
+        }
+        const fetchedMeetings = await fetchMeetings(username);
+        setMeetings(fetchedMeetings); // Set loading to false after fetching
+      };
 
-    fetchMeetingsData();
+      fetchMeetingsData();
+    }, 1000);
   }, []);
   const handleMeetingSelect = (meeting: Meeting) => {
     const joinMeetingData = async () => {
