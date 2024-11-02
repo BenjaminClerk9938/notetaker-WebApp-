@@ -344,6 +344,9 @@ const Transcript = () => {
                 <>
                   {/* Meeting Header */}
                   <Card className="mb-4">
+                    <Badge color="danger" content="" variant={"destructive"} >
+
+                    
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
@@ -353,8 +356,13 @@ const Transcript = () => {
                               <Clock className="mr-2 h-4 w-4" />
                               <span>
                                 {selectedMeeting.date} |{" "}
-                                {selectedMeeting.start_time} -{" "}
-                                {selectedMeeting.end_time}
+                                {new Date(
+                                  selectedMeeting.start_time
+                                ).toLocaleTimeString()}{" "}
+                                -{" "}
+                                {new Date(
+                                  selectedMeeting.end_time
+                                ).toLocaleTimeString()}
                               </span>
                             </div>
                             <Popover>
@@ -410,6 +418,7 @@ const Transcript = () => {
                         </Button>
                       </div>
                     </CardHeader>
+                    </Badge>
                   </Card>
 
                   {/* Transcript */}

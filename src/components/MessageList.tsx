@@ -24,7 +24,7 @@ export function MessageList({
   onHoverDelete,
 }: MessageListProps) {
   return (
-    <ScrollArea className="h-[calc(100vh-350px)]"  >
+    <ScrollArea className="h-[calc(100vh-350px)]">
       <div className="space-y-4">
         {messages.map((message) => (
           <div
@@ -45,7 +45,7 @@ export function MessageList({
               <div className="flex items-center space-x-2">
                 <span className="font-semibold">{message.speaker}</span>
                 <span className="text-sm text-muted-foreground">
-                  {message.timestamp}
+                  {new Date(message.timestamp).toLocaleTimeString()}
                 </span>
               </div>
               <p className="mt-1">{message.content}</p>

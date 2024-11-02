@@ -28,7 +28,9 @@ export function MeetingListView({
               <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
                 <span>
-                  {meeting.date} | {meeting.start_time} - {meeting.end_time}
+                  {meeting.date} |{" "}
+                  {new Date(meeting.start_time).toLocaleTimeString()} -{" "}
+                  {new Date(meeting.end_time).toLocaleTimeString()}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
