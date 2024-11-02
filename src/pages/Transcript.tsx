@@ -20,7 +20,6 @@ import {
   DialogTrigger,
 } from "../components/ui/dialog";
 import { Avatar, AvatarFallback } from "../components/ui/avatar";
-import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
 import {
   Clock,
@@ -44,6 +43,7 @@ import { ActionItems, SpeakerStats } from "../components/Sidebar";
 import { UserMenu } from "../components/UserMenu";
 import { cn } from "../lib/utils";
 import { fetchMeetings, joinMeeting } from "../apis/meeting";
+import { Badge } from "@mui/material";
 
 const Transcript = () => {
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>();
@@ -95,6 +95,7 @@ const Transcript = () => {
     Diana: 12,
     Eve: 5,
   });
+  const [badgeColor, setbadgeColor] = useState<string>("#fff");
 
   useEffect(() => {
     const fetchMeetingsData = async () => {
@@ -196,6 +197,9 @@ const Transcript = () => {
                 return [...prevMessages, message.data.message];
               }
             });
+          } else if (message.type === "status") {
+            if (message.data.is_active) setbadgeColor("#91ff91");
+            else setbadgeColor("#ff9191");
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -323,7 +327,7 @@ const Transcript = () => {
                               </div>
                             </div>
                           </div>
-                          <Badge variant="secondary">{member.role}</Badge>
+                          {/* <Badge variant="secondary">{member.role}</Badge> */}
                         </div>
                       ))}
                     </div>
@@ -343,83 +347,115 @@ const Transcript = () => {
               {selectedMeeting ? (
                 <>
                   {/* Meeting Header */}
-                  <Card className="mb-4">
-                    <Badge color="danger" content="" variant={"destructive"} >
+                  <Badge
+                    // color="success"
+                    sx={{
+                      width: "100%",
+                      "& .MuiBadge-badge": {
+                        top: 25, // Adjust the top position
+                        right: 25, // Adjust the right position
+                        backgroundColor: badgeColor, // Set badge background color
+                        color: "#FFFFFF", // Set badge text color
+                        boxShadow: `0 0 0 rgba(217, 255, 211, 0.4)`,
+                        animation: "pulse 1.5s infinite", // Apply pulse animation
 
-                    
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle>{selectedMeeting.name}</CardTitle>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-2">
-                            <div className="flex items-center">
-                              <Clock className="mr-2 h-4 w-4" />
-                              <span>
-                                {selectedMeeting.date} |{" "}
-                                {new Date(
-                                  selectedMeeting.start_time
-                                ).toLocaleTimeString()}{" "}
-                                -{" "}
-                                {new Date(
-                                  selectedMeeting.end_time
-                                ).toLocaleTimeString()}
+                        // Optional: Adjust badge size for better visibility
+                        minWidth: "14px",
+                        height: "14px",
+                        borderRadius: "50%", // Disable default transform if you need exact positioning
+                      },
+                      "@keyframes pulse": {
+                        "0%": {
+                          transform: "scale(1)",
+                          boxShadow: `0 0 0 0 rgba(217, 255, 211, 0.4)`,
+                        },
+                        "70%": {
+                          transform: "scale(1.1)",
+                          boxShadow: `0 0 0 10px rgba(217, 255, 211, 0)`,
+                        },
+                        "100%": {
+                          transform: "scale(1)",
+                          boxShadow: `0 0 0 0 rgba(217, 255, 211, 0)`,
+                        },
+                      },
+                    }}
+                    badgeContent=""
+                    // variant="dot"
+                  >
+                    <Card className="mb-4" style={{ width: "100%" }}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle>{selectedMeeting.name}</CardTitle>
+                            <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-2">
+                              <div className="flex items-center">
+                                <Clock className="mr-2 h-4 w-4" />
+                                <span>
+                                  {selectedMeeting.date} |{" "}
+                                  {new Date(
+                                    selectedMeeting.start_time
+                                  ).toLocaleTimeString()}{" "}
+                                  -{" "}
+                                  {new Date(
+                                    selectedMeeting.end_time
+                                  ).toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex items-center"
+                                  >
+                                    <Users className="mr-2 h-4 w-4" />
+                                    <span>
+                                      {selectedMeeting.participants.length}{" "}
+                                      Participants
+                                    </span>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 bg-card border-border">
+                                  <div className="space-y-2">
+                                    {selectedMeeting.participants.map(
+                                      (member) => (
+                                        <div
+                                          key={member}
+                                          className="flex items-center space-x-2"
+                                        >
+                                          <Avatar
+                                            className={speakerColors[member]}
+                                          >
+                                            <AvatarFallback>
+                                              {member[0]}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                          <span>{member}</span>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              <span className="text-sm text-muted-foreground">
+                                Recorded by MeetScribe AI
                               </span>
                             </div>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="flex items-center"
-                                >
-                                  <Users className="mr-2 h-4 w-4" />
-                                  <span>
-                                    {selectedMeeting.participants.length}{" "}
-                                    Participants
-                                  </span>
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-64 bg-card border-border">
-                                <div className="space-y-2">
-                                  {selectedMeeting.participants.map(
-                                    (member) => (
-                                      <div
-                                        key={member}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Avatar
-                                          className={speakerColors[member]}
-                                        >
-                                          <AvatarFallback>
-                                            {member[0]}
-                                          </AvatarFallback>
-                                        </Avatar>
-                                        <span>{member}</span>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                            <span className="text-sm text-muted-foreground">
-                              Recorded by MeetScribe AI
-                            </span>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex space-x-2 mt-4">
-                        <Button variant="secondary" size="sm">
-                          <FileText className="mr-2 h-4 w-4" />
-                          Generate Minutes
-                        </Button>
-                        <Button variant="secondary" size="sm">
-                          <FileSearch className="mr-2 h-4 w-4" />
-                          Detailed Summary
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    </Badge>
-                  </Card>
+                        <div className="flex space-x-2 mt-4">
+                          <Button variant="secondary" size="sm">
+                            <FileText className="mr-2 h-4 w-4" />
+                            Generate Minutes
+                          </Button>
+                          <Button variant="secondary" size="sm">
+                            <FileSearch className="mr-2 h-4 w-4" />
+                            Detailed Summary
+                          </Button>
+                        </div>
+                      </CardHeader>
+                    </Card>
+                  </Badge>
 
                   {/* Transcript */}
                   <Card>
