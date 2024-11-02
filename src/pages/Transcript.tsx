@@ -147,52 +147,68 @@ const Transcript = () => {
   };
 
   useEffect(() => {
-    // Construct the WebSocket URL with meetingId and username
-    const wsUrl = `wss://api.stru.ai/ws/meetings/${selectedMeeting?.id}/transcript?user=${user_name}`;
+    if (!selectedMeeting || !user_name) return;
 
-    const ws = new WebSocket(wsUrl);
+    // Construct WebSocket URL
+    const wsUrl = `wss://api.stru.ai/ws/meetings/${selectedMeeting.id}/transcript?user=${user_name}`;
+    let ws: any;
+    let reconnectInterval: any;
 
-    ws.onopen = () => {
-      console.log(ws);
-      console.log("Connected to WebSocket server");
-      setSocket(ws);
+    const initializeWebSocket = () => {
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log("Connected to WebSocket server");
+        setSocket(ws);
+        if (reconnectInterval) clearInterval(reconnectInterval); // Clear reconnection attempts if connected
+      };
+
+      ws.onmessage = (event: any) => {
+        try {
+          const message = JSON.parse(event.data);
+          console.log("Received message:", message);
+
+          if (message.type === "history") {
+            setMessages(message.data);
+          } else if (
+            message.type === "stream" &&
+            message.data.message.isComplete
+          ) {
+            setMessages((prev) => [...(prev || []), message.data.message]);
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+          setError("Error parsing incoming data");
+        }
+      };
+
+      ws.onerror = (event:any) => {
+        console.error("WebSocket error:", event);
+        setError("WebSocket error occurred");
+      };
+
+      ws.onclose = () => {
+        console.log("Disconnected from WebSocket server");
+        setSocket(null);
+        // Attempt reconnection if not manually closed
+        if (!reconnectInterval) {
+          reconnectInterval = setInterval(() => {
+            console.log("Reconnecting to WebSocket...");
+            initializeWebSocket();
+          }, 5000); // Attempt reconnection every 5 seconds
+        }
+      };
     };
 
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log("Received message:", message);
-      switch (message.type) {
-        case "history":
-          setMessages(message.data);
-          break;
-        case "stream":
-          if (message.data.message.isComplete)
-            setMessages((msg) => [...(msg || []), message.data.message]);
-      }
-      if (message.type === "history") {
-        setMessages(message.data);
-      }
-      // Assuming the message contains the transcript text
-      //   setTranscripts((prev) => [...prev, message.transcript]); // Adjust according to your data structure
-    };
+    initializeWebSocket();
 
-    ws.onerror = (event) => {
-      console.error("WebSocket error:", event);
-      setError("WebSocket error occurred");
-    };
-
-    ws.onclose = () => {
-      console.log("Disconnected from WebSocket server");
-      setSocket(null);
-    };
-
-    // Cleanup function to close the WebSocket connection
+    // Cleanup function to close WebSocket and stop reconnection
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      if (ws) ws.close();
+      if (reconnectInterval) clearInterval(reconnectInterval);
     };
   }, [selectedMeeting, user_name]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Side Navigation */}
