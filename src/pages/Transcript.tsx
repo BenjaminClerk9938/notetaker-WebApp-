@@ -181,15 +181,18 @@ const Transcript = () => {
           console.log("Received message:", message);
 
           if (message.type === "history") {
-            setMessages(message.data);
+            const msgs = message.data.map((msg: Message) => {
+              let message = { ...msg };
+              message.isComplete = true;
+              return message;
+            });
+            setMessages(msgs);
           } else if (message.type === "stream") {
             setMessages((prevMessages) => {
               if (
                 prevMessages.length > 0 &&
                 !prevMessages[prevMessages.length - 1].isComplete
               ) {
-                // If the last message is incomplete, assume this chunk is part
-
                 return [
                   ...prevMessages.slice(0, -1), // Keep previous messages
                   message.data.message,
