@@ -1,5 +1,4 @@
 export const loginUser = async (username: string) => {
-    console.log(username);
   const response = await fetch("https://api.stru.ai/api/auth/login", {
     method: "POST",
     headers: {

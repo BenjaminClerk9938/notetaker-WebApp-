@@ -23,7 +23,6 @@ export function MessageList({
   onDelete,
   onHoverDelete,
 }: MessageListProps) {
-  console.log(messages);
   return (
     <ScrollArea className="h-[calc(100vh-250px)]">
       <div className="space-y-4">

@@ -182,7 +182,6 @@ const Transcript = () => {
       ws.onmessage = (event: any) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("Received message:", message);
 
           if (message.type === "history") {
             const msgs = message.data.map((msg: Message) => {

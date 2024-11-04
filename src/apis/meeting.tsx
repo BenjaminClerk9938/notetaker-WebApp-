@@ -13,7 +13,6 @@ export const fetchMeetings = async (username: string): Promise<Meeting[]> => {
   if (!response.ok) {
     throw new Error("Failed to fetch meetings");
   }
-  console.log(response);
   return response.json();
 };
 export const joinMeeting = async (meetingId: string, username: string) => {

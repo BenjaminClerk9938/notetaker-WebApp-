@@ -17,7 +17,6 @@ export function MeetingListView({
   onMeetingSelect,
 }: MeetingListViewProps) {
   const username = localStorage.getItem("username");
-  console.log(username);
   useEffect(() => {
     // if (username) setInterval(() => fetchMeetings(username), 1000);
     // fetchMeetings();
