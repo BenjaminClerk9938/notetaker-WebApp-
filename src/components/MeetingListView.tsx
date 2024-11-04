@@ -32,8 +32,8 @@ export function MeetingListView({
           sx={{
             width: "100%",
             "& .MuiBadge-badge": {
-              top: 25, // Adjust the top position
-              right: 25, // Adjust the right position
+              top: "5%", // Adjust the top position
+              right: "5%", // Adjust the right position
               backgroundColor: meeting.is_active ? "#91ff91" : "#ff9191", // Set badge background color
               color: "#FFFFFF", // Set badge text color
               boxShadow: `0 0 0 rgba(217, 255, 211, 0.4)`,
@@ -64,7 +64,7 @@ export function MeetingListView({
         >
           <Card
             key={meeting.id}
-            className="cursor-pointer hover:bg-secondary/50 transition-colors"
+            className="cursor-pointer hover:bg-secondary/50 transition-colors w-full"
             onClick={() => onMeetingSelect(meeting)}
           >
             <CardHeader>
