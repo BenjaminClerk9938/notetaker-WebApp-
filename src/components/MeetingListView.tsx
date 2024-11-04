@@ -21,12 +21,12 @@ export function MeetingListView({
     // if (username) setInterval(() => fetchMeetings(username), 1000);
     // fetchMeetings();
   }, [username]);
-  console.log(meetings);
   // const [badgeColor, setbadgeColor] = useState<string>("#fff");
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {meetings.map((meeting) => (
         <Badge
+          key={meeting.id}
           // color="success"
           sx={{
             width: "100%",
@@ -62,7 +62,6 @@ export function MeetingListView({
           // variant="dot"
         >
           <Card
-            key={meeting.id}
             className="cursor-pointer hover:bg-secondary/50 transition-colors w-full"
             onClick={() => onMeetingSelect(meeting)}
           >
