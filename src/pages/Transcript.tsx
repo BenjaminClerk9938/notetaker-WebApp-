@@ -167,6 +167,10 @@ const Transcript = () => {
     let reconnectInterval: any;
 
     const initializeWebSocket = () => {
+      if (ws) {
+        ws.close();
+        clearInterval(reconnectInterval);
+      }
       ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
@@ -184,10 +188,13 @@ const Transcript = () => {
             const msgs = message.data.map((msg: Message) => {
               let message = { ...msg };
               message.isComplete = true;
+              message.id = crypto.randomUUID();
               return message;
             });
             setMessages(msgs);
           } else if (message.type === "stream") {
+            let msg = message.data.message;
+            msg.id = crypto.randomUUID();
             setMessages((prevMessages) => {
               if (
                 prevMessages.length > 0 &&
@@ -195,11 +202,11 @@ const Transcript = () => {
               ) {
                 return [
                   ...prevMessages.slice(0, -1), // Keep previous messages
-                  message.data.message,
+                  msg,
                 ];
               } else {
                 // Otherwise, treat it as a new message
-                return [...prevMessages, message.data.message];
+                return [...prevMessages, msg];
               }
             });
           } else if (message.type === "status") {
@@ -333,182 +340,180 @@ const Transcript = () => {
             <div className="grid grid-cols-[1fr_350px] gap-8">
               {/* Main Column */}
               <div className="min-w-0">
-               
-                  <>
-                    {/* Meeting Header */}
-                    <Badge
-                      // color="success"
-                      sx={{
-                        width: "100%",
-                        "& .MuiBadge-badge": {
-                          top: 25, // Adjust the top position
-                          right: 25, // Adjust the right position
-                          backgroundColor: badgeColor, // Set badge background color
-                          color: "#FFFFFF", // Set badge text color
-                          boxShadow: `0 0 0 rgba(217, 255, 211, 0.4)`,
-                          animation: "pulse 1.5s infinite", // Apply pulse animation
+                <>
+                  {/* Meeting Header */}
+                  <Badge
+                    // color="success"
+                    sx={{
+                      width: "100%",
+                      "& .MuiBadge-badge": {
+                        top: 25, // Adjust the top position
+                        right: 25, // Adjust the right position
+                        backgroundColor: badgeColor, // Set badge background color
+                        color: "#FFFFFF", // Set badge text color
+                        boxShadow: `0 0 0 rgba(217, 255, 211, 0.4)`,
+                        animation: "pulse 1.5s infinite", // Apply pulse animation
 
-                          // Optional: Adjust badge size for better visibility
-                          minWidth: "14px",
-                          height: "14px",
-                          borderRadius: "50%", // Disable default transform if you need exact positioning
+                        // Optional: Adjust badge size for better visibility
+                        minWidth: "14px",
+                        height: "14px",
+                        borderRadius: "50%", // Disable default transform if you need exact positioning
+                      },
+                      "@keyframes pulse": {
+                        "0%": {
+                          transform: "scale(1)",
+                          boxShadow: `0 0 0 0 rgba(217, 255, 211, 0.4)`,
                         },
-                        "@keyframes pulse": {
-                          "0%": {
-                            transform: "scale(1)",
-                            boxShadow: `0 0 0 0 rgba(217, 255, 211, 0.4)`,
-                          },
-                          "70%": {
-                            transform: "scale(1.1)",
-                            boxShadow: `0 0 0 10px rgba(217, 255, 211, 0)`,
-                          },
-                          "100%": {
-                            transform: "scale(1)",
-                            boxShadow: `0 0 0 0 rgba(217, 255, 211, 0)`,
-                          },
+                        "70%": {
+                          transform: "scale(1.1)",
+                          boxShadow: `0 0 0 10px rgba(217, 255, 211, 0)`,
                         },
-                      }}
-                      badgeContent=""
-                      // variant="dot"
-                    >
-                      <Card className="mb-4" style={{ width: "100%" }}>
-                        <CardHeader>
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <CardTitle>{selectedMeeting.name}</CardTitle>
-                              <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-2">
-                                <div className="flex items-center">
-                                  <Clock className="mr-2 h-4 w-4" />
-                                  <span>
-                                    {selectedMeeting.date} |{" "}
-                                    {new Date(
-                                      selectedMeeting.start_time
-                                    ).toLocaleTimeString()}{" "}
-                                    -{" "}
-                                    {new Date(
-                                      selectedMeeting.end_time
-                                    ).toLocaleTimeString()}
-                                  </span>
-                                </div>
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="flex items-center"
-                                    >
-                                      <Users className="mr-2 h-4 w-4" />
-                                      <span>
-                                        {selectedMeeting.participants.length}{" "}
-                                        Participants
-                                      </span>
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-64 bg-card border-border">
-                                    <div className="space-y-2">
-                                      {selectedMeeting.participants.map(
-                                        (member) => (
-                                          <div
-                                            key={member}
-                                            className="flex items-center space-x-2"
-                                          >
-                                            <Avatar
-                                              className={speakerColors[member]}
-                                            >
-                                              <AvatarFallback>
-                                                {member[0]}
-                                              </AvatarFallback>
-                                            </Avatar>
-                                            <span>{member}</span>
-                                          </div>
-                                        )
-                                      )}
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-                                <span className="text-sm text-muted-foreground">
-                                  Recorded by MeetScribe AI
+                        "100%": {
+                          transform: "scale(1)",
+                          boxShadow: `0 0 0 0 rgba(217, 255, 211, 0)`,
+                        },
+                      },
+                    }}
+                    badgeContent=""
+                    // variant="dot"
+                  >
+                    <Card className="mb-4" style={{ width: "100%" }}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle>{selectedMeeting.name}</CardTitle>
+                            <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-2">
+                              <div className="flex items-center">
+                                <Clock className="mr-2 h-4 w-4" />
+                                <span>
+                                  {selectedMeeting.date} |{" "}
+                                  {new Date(
+                                    selectedMeeting.start_time
+                                  ).toLocaleTimeString()}{" "}
+                                  -{" "}
+                                  {new Date(
+                                    selectedMeeting.end_time
+                                  ).toLocaleTimeString()}
                                 </span>
                               </div>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="flex items-center"
+                                  >
+                                    <Users className="mr-2 h-4 w-4" />
+                                    <span>
+                                      {selectedMeeting.participants.length}{" "}
+                                      Participants
+                                    </span>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 bg-card border-border">
+                                  <div className="space-y-2">
+                                    {selectedMeeting.participants.map(
+                                      (member) => (
+                                        <div
+                                          key={member}
+                                          className="flex items-center space-x-2"
+                                        >
+                                          <Avatar
+                                            className={speakerColors[member]}
+                                          >
+                                            <AvatarFallback>
+                                              {member[0]}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                          <span>{member}</span>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              <span className="text-sm text-muted-foreground">
+                                Recorded by MeetScribe AI
+                              </span>
                             </div>
                           </div>
-                          <div className="flex space-x-2 mt-4">
-                            <Button variant="secondary" size="sm">
-                              <FileText className="mr-2 h-4 w-4" />
-                              Generate Minutes
-                            </Button>
-                            <Button variant="secondary" size="sm">
-                              <FileSearch className="mr-2 h-4 w-4" />
-                              Detailed Summary
-                            </Button>
-                          </div>
-                        </CardHeader>
-                      </Card>
-                    </Badge>
-
-                    {/* Transcript */}
-                    <Card>
-                      <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>Transcript</CardTitle>
-                        <div className="w-64">
-                          <div className="relative">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search..." className="pl-8" />
-                          </div>
+                        </div>
+                        <div className="flex space-x-2 mt-4">
+                          <Button variant="secondary" size="sm">
+                            <FileText className="mr-2 h-4 w-4" />
+                            Generate Minutes
+                          </Button>
+                          <Button variant="secondary" size="sm">
+                            <FileSearch className="mr-2 h-4 w-4" />
+                            Detailed Summary
+                          </Button>
                         </div>
                       </CardHeader>
-                      <CardContent>
-                        <MessageList
-                          messages={messages || []}
-                          hoveredDelete={hoveredDelete}
-                          onStar={toggleStar}
-                          onAddToActionItems={addToActionItems}
-                          onDelete={deleteMessage}
-                          onHoverDelete={setHoveredDelete}
-                        />
-                      </CardContent>
                     </Card>
-                  </>
-                
+                  </Badge>
+
+                  {/* Transcript */}
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle>Transcript</CardTitle>
+                      <div className="w-64">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input placeholder="Search..." className="pl-8" />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <MessageList
+                        messages={messages || []}
+                        hoveredDelete={hoveredDelete}
+                        onStar={toggleStar}
+                        onAddToActionItems={addToActionItems}
+                        onDelete={deleteMessage}
+                        onHoverDelete={setHoveredDelete}
+                      />
+                    </CardContent>
+                  </Card>
+                </>
               </div>
 
-                <div className="space-y-8">
-                  <ActionItems
-                    items={actionItems}
-                    newItem={newActionItem}
-                    onNewItemChange={setNewActionItem}
-                    onAddItem={() => {
-                      if (newActionItem.trim()) {
-                        setActionItems([
-                          ...actionItems,
-                          {
-                            id: crypto.randomUUID(),
-                            content: newActionItem,
-                            isInferred: false,
-                            isEditing: false,
-                          },
-                        ]);
-                        setNewActionItem("");
-                      }
-                    }}
-                    onDeleteItem={(id) => {
-                      setActionItems((items) =>
-                        items.filter((item) => item.id !== id)
-                      );
-                    }}
-                    onEditItem={(id, content) => {
-                      setActionItems((items) =>
-                        items.map((item) =>
-                          item.id === id
-                            ? { ...item, content, isEditing: false }
-                            : item
-                        )
-                      );
-                    }}
-                    onSetEditing={setActionItems}
-                  />
-                  <SpeakerStats stats={speakerStats} />
-                </div>
+              <div className="space-y-8">
+                <ActionItems
+                  items={actionItems}
+                  newItem={newActionItem}
+                  onNewItemChange={setNewActionItem}
+                  onAddItem={() => {
+                    if (newActionItem.trim()) {
+                      setActionItems([
+                        ...actionItems,
+                        {
+                          id: crypto.randomUUID(),
+                          content: newActionItem,
+                          isInferred: false,
+                          isEditing: false,
+                        },
+                      ]);
+                      setNewActionItem("");
+                    }
+                  }}
+                  onDeleteItem={(id) => {
+                    setActionItems((items) =>
+                      items.filter((item) => item.id !== id)
+                    );
+                  }}
+                  onEditItem={(id, content) => {
+                    setActionItems((items) =>
+                      items.map((item) =>
+                        item.id === id
+                          ? { ...item, content, isEditing: false }
+                          : item
+                      )
+                    );
+                  }}
+                  onSetEditing={setActionItems}
+                />
+                <SpeakerStats stats={speakerStats} />
+              </div>
             </div>
           ) : (
             <div className="grid gap-8">
@@ -519,8 +524,6 @@ const Transcript = () => {
                   onMeetingSelect={handleMeetingSelect}
                 />
               </div>
-
-              
             </div>
           )}
         </div>
