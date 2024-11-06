@@ -263,10 +263,10 @@ const Transcript = () => {
                 onClick={() => setSelectedMeeting(null)}
               >
                 Product Team
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Button>
               {selectedMeeting && (
                 <>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">
                     {selectedMeeting.name}
                   </span>
