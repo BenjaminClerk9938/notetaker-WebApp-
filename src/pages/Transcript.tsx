@@ -254,16 +254,21 @@ const Transcript = () => {
         {/* Top Navigation */}
         <nav className="border-b border-border bg-card/50 backdrop-blur ">
           <div className="container mx-auto px-4 py-2 flex justify-between items-center">
-            <div className="flex items-center text-sm">
-              <span className="font-semibold">MeetScribe</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center text-sm align-middle">
+              <Button
+                className="font-semibold text-muted-foreground px-1 py-2 h-auto hover:bg-secondary flex items-center text-sm align-text-bottom"
+                variant="ghost"
+              >
+                MeetScribe
+                <ChevronRight className="max-h-4 w-4 text-muted-foreground" />
+              </Button>
               <Button
                 variant="ghost"
-                className="text-muted-foreground px-4 py-2 h-auto hover:bg-secondary"
+                className="text-muted-foreground px-1 py-2 h-auto hover:bg-secondary flex items-center text-sm align-middle"
                 onClick={() => setSelectedMeeting(null)}
               >
                 Product Team
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="max-h-4 w-4 text-muted-foreground" />
               </Button>
               {selectedMeeting && (
                 <>
